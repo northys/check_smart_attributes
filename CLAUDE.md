@@ -167,3 +167,92 @@ The `check_smartdb.json` database organizes devices by category/family. Common e
 - 241/242: Total LBAs Written/Read (SSD wear indicators)
 
 When adding a new device, first check if it belongs to an existing family; if so, add the model to the existing entry rather than creating a new one.
+
+## Working with the Database using `jq`
+
+The `jq` tool is very useful for exploring the database structure and determining where a new device should be added. Below are practical examples for working with `check_smartdb.json`.
+
+### Finding Device Entries
+
+Search for existing device model patterns:
+
+```bash
+# Find all Samsung device entries
+jq '.Devices | keys | .[]' check_smartdb.json | grep -i samsung
+
+# Search for specific model patterns
+jq '.Devices | keys | .[]' check_smartdb.json | grep -i "PM893\|PM883"
+```
+
+### Check if a Device Already Exists
+
+Look for a specific device model string within the database:
+
+```bash
+# Find exact device model match
+jq '.Devices | to_entries[] | select(.value.Device | index("SAMSUNG MZ7L3960HBLT-00A07"))' check_smartdb.json
+
+# Find partial model match (useful for determining family)
+jq '.Devices | to_entries[] | select(.value.Device | join("|") | test("MZ7L3"))' check_smartdb.json
+```
+
+### Examine Device Entry Structure
+
+Inspect a specific device entry by family name:
+
+```bash
+# Get full device entry
+jq '.Devices."Samsung PM893"' check_smartdb.json
+
+# List models in a device family
+jq '.Devices."Samsung PM893".Device' check_smartdb.json
+
+# List attributes monitored for a device family
+jq '.Devices."Samsung PM893"."ID#" | keys' check_smartdb.json
+
+# List performance metrics for a device family
+jq '.Devices."Samsung PM893".Perfs' check_smartdb.json
+```
+
+### Find Similar Devices
+
+When adding a new device, find similar device entries to use as a template:
+
+```bash
+# Find device families with similar attribute patterns (e.g., SSD-specific attributes)
+jq '.Devices | to_entries[] | select(.value."ID#" | has("177"))' check_smartdb.json
+
+# Find device families monitoring similar metrics
+jq '.Devices | to_entries[] | select(.value.Perfs | index("241"))' check_smartdb.json
+```
+
+### Practical Workflow for Adding a New Device
+
+Example workflow for adding a Samsung MZ7L3960HBLT-00A07 SSD:
+
+```bash
+# 1. Look for existing device family matches
+jq '.Devices | to_entries[] | select(.value.Device | join("|") | test("MZ7L3"))' check_smartdb.json
+
+# 2. If found, check which family contains similar models
+jq '.Devices | to_entries[] | select(.value.Device | join("|") | test("MZ7L3")) | .key' check_smartdb.json
+
+# 3. Examine the specific device entry structure to follow the pattern
+jq '.Devices."Samsung PM893"' check_smartdb.json
+
+# 4. Update the device list in that family (done via text editor)
+```
+
+When working with `jq`, remember that the database has this hierarchical structure:
+```
+"Devices": {
+  "Device Family Name": {
+    "Device": [list of model strings],
+    "ID#": {attribute mappings},
+    "Threshs": {threshold settings},
+    "Perfs": [performance metrics]
+  }
+}
+```
+
+This structure helps organize devices by family or type and ensures consistent monitoring across similar devices.
