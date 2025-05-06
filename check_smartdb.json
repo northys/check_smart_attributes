@@ -2503,7 +2503,7 @@
 			"Perfs" : ["194"]
 		},
 		"Seagate Exos X" : {
-			"Device" : ["Seagate Exos X","ST10000NM0156","ST16000NM001J-2TW113","ST6000NM019B-2TG103"],
+			"Device" : ["Seagate Exos X","ST10000NM0156","ST16000NM001J-2TW113","ST6000NM019B-2TG103","ST24000NM002H-3KS133"],
 			"ID#" : {
 				"1" : {"value": "VALUE", "comment": "Raw Read Error Rate"},
 				"3" : {"value": "VALUE", "comment": "Spin Up Time"},
