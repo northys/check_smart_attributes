@@ -195,6 +195,25 @@ Example of problematic duplicate entries:
 1. Add your new model to the existing family entry, or
 2. Use a slightly different name for your new family (e.g., "Seagate Exos X16" instead of "Seagate Exos X")
 
+### Prefer Adding to Existing Device Families
+
+The best practice is to add new device models to existing device families rather than creating separate entries whenever possible. Even if the models are slightly different, they often share the same monitoring characteristics.
+
+For example:
+- Instead of creating a new "Seagate Exos X16" entry for an ST6000NM019B-2TG103 drive, add it to the existing "Seagate Exos X" family
+- Instead of creating a new "Samsung PM893 960GB" entry, add the MZ7L3960HBLT-00A07 model to the existing "Samsung PM893" family
+
+Benefits of consolidating similar models under the same family:
+1. Maintains consistency in monitoring across similar drives
+2. Reduces database clutter and makes it easier to maintain
+3. Minimizes the risk of devices not being detected due to duplicate entries
+4. Leverages existing, well-tested threshold configurations
+
+Only create a new device family when a device is fundamentally different in terms of:
+- Manufacturer/product line
+- Important SMART attributes that need different thresholds
+- Required performance metrics
+
 ### Model Matching Logic
 
 The plugin uses Perl regex matching with the model string extracted from smartctl output:
