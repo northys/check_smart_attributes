@@ -168,6 +168,48 @@ The `check_smartdb.json` database organizes devices by category/family. Common e
 
 When adding a new device, first check if it belongs to an existing family; if so, add the model to the existing entry rather than creating a new one.
 
+## Common Pitfalls and Issues
+
+### Duplicate Device Family Names
+
+The database must have unique "Device Family Name" entries. Having duplicate family names (e.g., two entries for "Seagate Exos X") will cause detection issues:
+
+1. The plugin processes the database sequentially
+2. When it finds the first matching family, it stops searching
+3. If a device model is in a duplicate family entry that appears later in the file, it won't be detected
+
+Example of problematic duplicate entries:
+```json
+"Devices": {
+  "Seagate Exos X": {  // First entry will be used
+    "Device": ["MODEL1", "MODEL2"]
+  },
+  // Many other entries...
+  "Seagate Exos X": {  // This duplicate will be ignored!
+    "Device": ["MODEL3", "MODEL4"]  // These models won't be detected
+  }
+}
+```
+
+**Always check for existing family names** before adding a new entry. If a family with the same name exists:
+1. Add your new model to the existing family entry, or
+2. Use a slightly different name for your new family (e.g., "Seagate Exos X16" instead of "Seagate Exos X")
+
+### Model Matching Logic
+
+The plugin uses Perl regex matching with the model string extracted from smartctl output:
+```perl
+if($currModel =~ /$_$/){
+  $found=1;
+}
+```
+
+Where:
+- `$currModel` is a line like `Device Model:     ST6000NM019B-2TG103`
+- `$_` is the model pattern from the database
+
+This regex matching looks for an exact match at the end of the string (`$` anchor), so be precise with model strings.
+
 ## Working with the Database using `jq`
 
 The `jq` tool is very useful for exploring the database structure and determining where a new device should be added. Below are practical examples for working with `check_smartdb.json`.
