@@ -3173,7 +3173,7 @@
 			"Perfs" : ["9","12","194","241","242"]
 		}
 	},
-        "Seagate Exos X" : {
+        "Seagate Exos X16" : {
             "Device" : ["ST6000NM019B-2TG103"],
             "ID#" : {
                 "1" : {"value": "VALUE", "comment": "Raw Read Error Rate"},
